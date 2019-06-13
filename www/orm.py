@@ -177,7 +177,7 @@ async def create_pool(loop, **kw):
         user=kw['user'],
         password=kw['password'],
         db=kw['db'],
-        charset=kw.get('charset', 'utf-8'),
+        charset=kw.get('charset', 'utf8'),
         autocommit=kw.get('autocommit', True),
         maxsize=kw.get('maxsize', 10),
         minsize=kw.get('minsize', 1),
@@ -211,6 +211,7 @@ async def execute(sql, args, autocommit=True):
         except BaseException as e:
             if not autocommit:
                 await conn.rollback()
+            raise
         return affected
 
 def create_args_string(num):
@@ -228,7 +229,7 @@ class Field(object):
         self.default = default
 
     def __str__(self):
-        return '<%s, %s:%s>' %(self.__class__.__name__, self.column_type, self.name)
+        return '<%s, %s:%s>' % (self.__class__.__name__, self.column_type, self.name)
 
 class StringField(Field):
 
@@ -270,7 +271,7 @@ class ModelMetaclass(type):
                 logging.info('Found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
                 if v.primary_key:
-                    # 找到主键
+                    # 找到主键:
                     if primaryKey:
                         raise RuntimeError('Duplicate primary key for field: %s' % k)
                     primaryKey = k
@@ -317,12 +318,12 @@ class Model(dict, metaclass=ModelMetaclass):
             if field.default is not None:
                 value = field.default() if callable(field.default) else field.default
                 logging.debug('using default value for %s: %s' % (key, str(value)))
-                setattr(str, key, value)
+                setattr(self, key, value)
         return value
 
     @classmethod
     async def findAll(cls, where=None, args=None, **kw):
-        '   find objects bu where clause.'
+        '   find objects by where clause.'
         sql = [cls.__select__]
         if where:
             sql.append('where')
@@ -336,11 +337,11 @@ class Model(dict, metaclass=ModelMetaclass):
         limit = kw.get('limit', None)
         if limit is not None:
             sql.append('limit')
-            if isinstance('limit', int):
+            if isinstance(limit, int):
                 sql.append('?')
                 args.append(limit)
             elif isinstance(limit, tuple) and len(limit) == 2:
-                sql.appenf('?, ?')
+                sql.append('?, ?')
                 args.extend(limit)
             else:
                 raise ValueError('Invalid limit value: %s' % str(limit))
@@ -361,7 +362,7 @@ class Model(dict, metaclass=ModelMetaclass):
 
     @classmethod
     async def find(cls, pk):
-        '  find object by primay key.'
+        '  find object by primary key. '
         rs = await select('%s where `%s`=?' % (cls.__select__, cls.__primary_key__), [pk], 1)
         if len(rs) == 0:
             return None
@@ -379,14 +380,10 @@ class Model(dict, metaclass=ModelMetaclass):
         args.append(self.getValue(self.__primary_key__))
         rows = await execute(self.__update__, args)
         if rows != 1:
-            logging.warn('failed to update by primary keyL affected rows: %s' % rows)
+            logging.warn('failed to update by primary key: affected rows: %s' % rows)
 
     async def remove(self):
         args = [self.getValue(self.__primary_key__)]
         rows = await execute(self.__delete__, args)
         if rows != 1:
             logging.warn('failed to remove by primary key: affected rows: %s' % rows)
-
-
-
-
