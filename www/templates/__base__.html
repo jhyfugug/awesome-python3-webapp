@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!--{% macro pagination(url, page) %}
+    <ul class="'uk-pagination">
+        {% if page.has_previous %}
+            <li><a href="{{url}}{{page.page.page_index - 1}}"><i class="uk-icon-angle-double-left"></i>></a></li>
+        {% else %}
+            <li class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i></span></li>
+        {% endif %}
+            <li class=""uk-active><span>{{page.page_index}}</span></li>
+        {% if page.has_next %}
+            <li><a href="{{url}}{{page.page_index + 1}}"><i class="uk-icon-angle-double-right"></i></a></li>
+        {% else %}
+            <li class="uk-disabled"><span><i class="uk-icon-angle-double-right"></i></span></li>
+        {% endif %}
+    </ul>
+{% endmacro %}
+-->
+<html>
+<head>
+    <meta charset="UTF-8">
+    {% block meta %}<!-- block meta  -->{% endblock %}
+    <title>{% block title %} ? {% endblock %} -Awesome Python Webapp</title>
+    <link rel="stylesheet" href="/static/css/uikit.min.css">
+    <link rel="stylesheet" href="/static/css/uikit.gradient.min.css">
+
+</head>
+<body>
+
+</body>
+</html>
